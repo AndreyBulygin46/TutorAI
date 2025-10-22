@@ -1,0 +1,176 @@
+/* Кастомные переводы для админ панели */
+
+/* Кнопка "New" - заменяем через CSS псевдоэлементы */
+a[href*="/create"] {
+    font-size: 0;
+}
+
+a[href*="/create"]:after {
+    content: "Добавить";
+    font-size: 14px;
+}
+
+/* Специфичные кнопки для каждого раздела */
+a[href="/admin/student/create"]:after {
+    content: "Добавить студента";
+    font-size: 14px;
+}
+
+a[href="/admin/course-program/create"]:after {
+    content: "Добавить программу";
+    font-size: 14px;
+}
+
+a[href="/admin/stream/create"]:after {
+    content: "Добавить поток";
+    font-size: 14px;
+}
+
+a[href="/admin/module/create"]:after {
+    content: "Добавить модуль";
+    font-size: 14px;
+}
+
+a[href="/admin/lesson/create"]:after {
+    content: "Добавить урок";
+    font-size: 14px;
+}
+
+a[href="/admin/course-material/create"]:after {
+    content: "Добавить материал";
+    font-size: 14px;
+}
+
+a[href="/admin/schedule/create"]:after {
+    content: "Добавить расписание";
+    font-size: 14px;
+}
+
+a[href="/admin/assignment/create"]:after {
+    content: "Добавить задание";
+    font-size: 14px;
+}
+
+/* ПАГИНАЦИЯ - скрываем английский текст и добавляем русский */
+/* Скрываем "Showing X to Y of Z items" - более точный селектор */
+.card-footer p.text-muted {
+    font-size: 0 !important;
+}
+
+.card-footer p.text-muted:after {
+    content: "Показано элементов";
+    font-size: 14px !important;
+    color: #6c757d !important;
+}
+
+/* Кнопки "prev" и "next" - более точные селекторы */
+.pagination .page-item:first-child a {
+    font-size: 0 !important;
+}
+
+.pagination .page-item:first-child a:after {
+    content: "Предыдущая";
+    font-size: 14px !important;
+}
+
+.pagination .page-item:last-child a {
+    font-size: 0 !important;
+}
+
+.pagination .page-item:last-child a:after {
+    content: "Следующая";
+    font-size: 14px !important;
+}
+
+/* Dropdown "Show" - более точный селектор */
+.card-footer .dropdown {
+    font-size: 0 !important;
+}
+
+.card-footer .dropdown:after {
+    content: "Показать";
+    font-size: 14px !important;
+}
+
+/* Dropdown items "/ Page" - более точный селектор */
+.dropdown-menu .dropdown-item {
+    font-size: 0 !important;
+}
+
+.dropdown-menu .dropdown-item:after {
+    content: "/ Страница";
+    font-size: 14px !important;
+}
+
+/* Dropdown toggle "/ Page" - более точный селектор */
+.dropdown-toggle {
+    font-size: 0 !important;
+}
+
+.dropdown-toggle:after {
+    content: "/ Страница";
+    font-size: 14px !important;
+}
+
+/* Кнопки форм редактирования */
+/* Кнопка Cancel */
+.btn[href*="/list"] {
+    font-size: 0 !important;
+}
+
+.btn[href*="/list"]:after {
+    content: "Отмена";
+    font-size: 14px !important;
+}
+
+/* Кнопки Save */
+input[type="submit"][value="Save"] {
+    font-size: 0 !important;
+}
+
+input[type="submit"][value="Save"]:after {
+    content: "Сохранить";
+    font-size: 14px !important;
+}
+
+input[type="submit"][value="Save and continue editing"] {
+    font-size: 0 !important;
+}
+
+input[type="submit"][value="Save and continue editing"]:after {
+    content: "Сохранить и продолжить редактирование";
+    font-size: 14px !important;
+}
+
+input[type="submit"][value="Save and add another"] {
+    font-size: 0 !important;
+}
+
+input[type="submit"][value="Save and add another"]:after {
+    content: "Сохранить и добавить еще";
+    font-size: 14px !important;
+}
+
+/* Другие кнопки */
+.btn-success {
+    content: "Сохранить";
+}
+
+.btn-secondary {
+    content: "Отмена";
+}
+
+/* Пагинация */
+.pagination .page-link {
+    font-size: 14px;
+}
+
+/* Заголовки */
+h1, h2, h3 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Кнопки действий */
+.btn-group .btn {
+    margin-right: 5px;
+}

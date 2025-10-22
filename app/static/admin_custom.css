@@ -1,0 +1,25 @@
+/* Скрываем чекбоксы в админ панели */
+.form-check-input[type="checkbox"] {
+    display: none !important;
+}
+
+/* Скрываем заголовок "Select All" */
+th[aria-label="Select all"] {
+    display: none !important;
+}
+
+/* Скрываем колонку с чекбоксами */
+th:has(.form-check-input[type="checkbox"]),
+td:has(.form-check-input[type="checkbox"]) {
+    display: none !important;
+}
+
+/* Скрываем кнопки массовых операций */
+.btn-group .btn[data-bs-toggle="dropdown"] {
+    display: none !important;
+}
+
+/* Скрываем dropdown меню массовых операций */
+.dropdown-menu {
+    display: none !important;
+}
