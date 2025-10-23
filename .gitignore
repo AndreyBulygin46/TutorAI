@@ -30,3 +30,4 @@ venv/
 env/
 .venv/
 /mds/task.py
+/mds/README2.md
