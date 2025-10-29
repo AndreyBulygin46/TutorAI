@@ -94,7 +94,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Иван Петров\",\n  \"phone\": \"+79123456789\",\n  \"telegram_user_id\": 123456789,\n  \"telegram_username\": \"ivan_petrov\",\n  \"is_active\": true\n}"
+              "raw": "{\n  \"name\": \"Олег Заболотский\",\n  \"phone\": \"+79123456730\",\n  \"telegram_user_id\": 123456765,\n  \"telegram_username\": \"oleg_zab\",\n  \"is_active\": true\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/students/",
