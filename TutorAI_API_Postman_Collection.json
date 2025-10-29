@@ -1,0 +1,603 @@
+{
+  "info": {
+    "name": "TutorAI API",
+    "description": "Коллекция запросов для тестирования TutorAI API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Students API",
+      "item": [
+        {
+          "name": "Get All Students",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/?skip=0&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "students", ""],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "students", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student by Telegram ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/telegram/123456789",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "students", "telegram", "123456789"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Иван Петров\",\n  \"phone\": \"+79123456789\",\n  \"telegram_user_id\": 123456789,\n  \"telegram_username\": \"ivan_petrov\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "students", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Student",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Иван Петров (обновлено)\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "students", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student Facts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/1/facts?week_start=2025-01-13&week_end=2025-01-19",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "students", "1", "facts"],
+              "query": [
+                {
+                  "key": "week_start",
+                  "value": "2025-01-13"
+                },
+                {
+                  "key": "week_end",
+                  "value": "2025-01-19"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student Rating",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/1/rating?week_start=2025-01-13&week_end=2025-01-19",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "students", "1", "rating"],
+              "query": [
+                {
+                  "key": "week_start",
+                  "value": "2025-01-13"
+                },
+                {
+                  "key": "week_end",
+                  "value": "2025-01-19"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/1/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "students", "1", "stats"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Materials API",
+      "item": [
+        {
+          "name": "Get All Materials",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/materials/?skip=0&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "materials", ""],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Material by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/materials/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "materials", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Material",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lesson_id\": 1,\n  \"title\": \"Тестовый материал\",\n  \"content\": \"Содержимое тестового материала\",\n  \"material_type\": \"text\",\n  \"material_category\": \"lecture\",\n  \"is_public\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/materials/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "materials", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Materials by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/materials/category/lecture",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "materials", "category", "lecture"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Materials",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/materials/search/?q=искусственный%20интеллект",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "materials", "search", ""],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "искусственный интеллект"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Public Materials",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/materials/public/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "materials", "public", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Material Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/materials/stats/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "materials", "stats", ""]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Messages API",
+      "item": [
+        {
+          "name": "Get All Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/messages/?skip=0&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "messages", ""],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Message by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/messages/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "messages", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chat_id\": 123456789,\n  \"sender_type\": \"user\",\n  \"sender_id\": 1,\n  \"text_content\": \"Привет! У меня вопрос по заданию.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/messages/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "messages", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Bot Response",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text_content\": \"Конечно! По какому именно заданию у вас вопрос?\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/messages/1/bot-response",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "messages", "1", "bot-response"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Chat Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/messages/chat/123456789/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "messages", "chat", "123456789", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/messages/user/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "messages", "user", "1", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Bot Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/messages/bot/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "messages", "bot", ""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Chat Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/messages/chat/123456789/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "messages", "chat", "123456789", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/messages/search/?q=вопрос",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "messages", "search", ""],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "вопрос"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Rating API",
+      "item": [
+        {
+          "name": "Calculate Ratings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_ids\": [1, 2, 3],\n  \"week_start\": \"2025-01-13\",\n  \"week_end\": \"2025-01-19\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/rating/calculate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "rating", "calculate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student Weekly Rating",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/rating/student/1/weekly?week_start=2025-01-13&week_end=2025-01-19",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "rating", "student", "1", "weekly"],
+              "query": [
+                {
+                  "key": "week_start",
+                  "value": "2025-01-13"
+                },
+                {
+                  "key": "week_end",
+                  "value": "2025-01-19"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Streams Config",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/rating/streams",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "rating", "streams"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Stream Students",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/rating/streams/1/students",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "rating", "streams", "1", "students"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Weekly Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/rating/streams/1/weekly-report?week_start=2025-01-13&week_end=2025-01-19",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "rating", "streams", "1", "weekly-report"],
+              "query": [
+                {
+                  "key": "week_start",
+                  "value": "2025-01-13"
+                },
+                {
+                  "key": "week_end",
+                  "value": "2025-01-19"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Notifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stream_id\": 1,\n  \"student_ids\": [1, 2, 3],\n  \"message_template\": \"Ваш рейтинг на этой неделе: {score} баллов\",\n  \"notification_type\": \"weekly_rating\",\n  \"send_immediately\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/rating/notifications/send",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "rating", "notifications", "send"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Rating Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/rating/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "rating", "health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
+
