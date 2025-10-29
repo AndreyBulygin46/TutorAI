@@ -381,7 +381,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"text_content\": \"Конечно! По какому именно заданию у вас вопрос?\"\n}"
+              "raw": "{\n  \"message_id\": 1,\n  \"text_content\": \"Конечно! По какому именно заданию у вас вопрос?\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/messages/1/bot-response",
