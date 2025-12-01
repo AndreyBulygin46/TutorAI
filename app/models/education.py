@@ -4,7 +4,7 @@ All models as Python classes - no manual SQL as required by team lead
 Updated for PostgreSQL with full schema support
 """
 
-from datetime import datetime, date, time
+from datetime import datetime, date, time as dt_time
 from typing import Optional, List, Dict
 from sqlalchemy import (
     Column, BigInteger, String, Text, Boolean, DateTime, Date, Time,
@@ -235,8 +235,8 @@ class Meeting(Base):
     lesson_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('lessons.lesson_id', ondelete='CASCADE'), nullable=False)
     meeting_type: Mapped[MeetingType] = mapped_column(SQLEnum(MeetingType), nullable=False)
     meeting_date: Mapped[date] = mapped_column(Date, nullable=False)
-    start_time: Mapped[Optional[time]] = mapped_column(Time, nullable=True)  # NULL для самостоятельной работы
-    end_time: Mapped[Optional[time]] = mapped_column(Time, nullable=True)    # NULL для самостоятельной работы
+    start_time: Mapped[Optional[dt_time]] = mapped_column(Time, nullable=True)  # NULL для самостоятельной работы
+    end_time: Mapped[Optional[dt_time]] = mapped_column(Time, nullable=True)    # NULL для самостоятельной работы
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
     
@@ -325,7 +325,7 @@ class StreamNotificationConfig(Base):
     notification_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     frequency: Mapped[str] = mapped_column(String(20), default="weekly", nullable=False)  # weekly, daily, etc.
     day_of_week: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)  # 0-6 (понедельник-воскресенье)
-    time: Mapped[Optional[time]] = mapped_column(Time, nullable=True)  # Время рассылки
+    time: Mapped[Optional[dt_time]] = mapped_column(Time, nullable=True)  # Время рассылки
     
     # Настройки выборки
     student_limit: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)  # Лимит выборки студентов

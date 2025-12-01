@@ -458,8 +458,24 @@ async def get_stream_notification_config(
     config_result = await db.execute(config_query)
     config = config_result.scalar_one_or_none()
     
+    # Если конфигурации нет, возвращаем дефолтные значения (как в get_streams_config)
     if not config:
-        raise HTTPException(status_code=404, detail="Конфигурация не найдена")
+        # Дефолтные значения из модели StreamNotificationConfig
+        return StreamNotificationConfigResponse(
+            config_id=0,  # Временный ID, так как записи в БД нет
+            stream_id=stream_id,
+            notification_enabled=True,
+            frequency="weekly",
+            day_of_week=1,  # Понедельник
+            time="10:00",
+            student_limit=None,
+            language="ru",
+            tone="friendly",
+            anti_repeat_rules=None,
+            dry_run_enabled=False,
+            created_at=datetime.now(),
+            updated_at=datetime.now()
+        )
     
     # Конвертируем time в строку для ответа
     config_dict = {
