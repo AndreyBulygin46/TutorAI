@@ -5,10 +5,10 @@ Updated for PostgreSQL with full schema support
 """
 
 from datetime import datetime, date, time
-from typing import Optional, List
+from typing import Optional, List, Dict
 from sqlalchemy import (
     Column, BigInteger, String, Text, Boolean, DateTime, Date, Time,
-    ForeignKey, Table, Enum as SQLEnum, Integer, CheckConstraint, Index
+    ForeignKey, Table, Enum as SQLEnum, Integer, CheckConstraint, Index, JSON
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -119,6 +119,7 @@ class Stream(Base):
     students: Mapped[List["Student"]] = relationship("Student", secondary=students_streams, back_populates="streams")
     meetings: Mapped[List["Meeting"]] = relationship("Meeting", back_populates="stream")
     schedule: Mapped[List["Schedule"]] = relationship("Schedule", back_populates="stream")
+    notification_config: Mapped[Optional["StreamNotificationConfig"]] = relationship("StreamNotificationConfig", back_populates="stream", uselist=False)
 
 
 class Module(Base):
@@ -310,6 +311,45 @@ class Prompt(Base):
     # Indexes
     __table_args__ = (
         Index('idx_prompts_type_active', 'prompt_type', 'is_active'),
+    )
+
+
+class StreamNotificationConfig(Base):
+    """Конфигурация уведомлений для потока"""
+    __tablename__ = "stream_notification_configs"
+    
+    config_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
+    stream_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('streams.stream_id', ondelete='CASCADE'), nullable=False, unique=True, index=True)
+    
+    # Настройки рассылки
+    notification_enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    frequency: Mapped[str] = mapped_column(String(20), default="weekly", nullable=False)  # weekly, daily, etc.
+    day_of_week: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)  # 0-6 (понедельник-воскресенье)
+    time: Mapped[Optional[time]] = mapped_column(Time, nullable=True)  # Время рассылки
+    
+    # Настройки выборки
+    student_limit: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)  # Лимит выборки студентов
+    
+    # Настройки сообщений
+    language: Mapped[str] = mapped_column(String(10), default="ru", nullable=False)  # ru, en, etc.
+    tone: Mapped[str] = mapped_column(String(20), default="friendly", nullable=False)  # friendly, formal, supportive, etc.
+    
+    # Правила антиповтора (JSON)
+    anti_repeat_rules: Mapped[Optional[Dict]] = mapped_column(JSON, nullable=True)  # Правила антиповтора
+    
+    # Режим сухого прогона
+    dry_run_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    
+    # Метаданные
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now(), nullable=False)
+    
+    # Relationships
+    stream: Mapped["Stream"] = relationship("Stream", back_populates="notification_config")
+    
+    # Indexes
+    __table_args__ = (
+        Index('idx_stream_notification_config_stream_id', 'stream_id'),
     )
 
 

@@ -127,6 +127,20 @@
           "response": []
         },
         {
+          "name": "Delete Student",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/students/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "students", "1"]
+            },
+            "description": "Удалить студента по ID"
+          },
+          "response": []
+        },
+        {
           "name": "Get Student Facts",
           "request": {
             "method": "GET",
@@ -245,6 +259,57 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "materials", ""]
             }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Material",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Обновленный материал\",\n  \"content\": \"Обновленное содержимое\",\n  \"is_public\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/materials/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "materials", "1"]
+            },
+            "description": "Обновить материал по ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Material",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/materials/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "materials", "1"]
+            },
+            "description": "Удалить материал по ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Materials by Lesson and Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/materials/lesson/1/by-category",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "materials", "lesson", "1", "by-category"]
+            },
+            "description": "Получить материалы урока, сгруппированные по категориям"
           },
           "response": []
         },
@@ -444,6 +509,20 @@
           "response": []
         },
         {
+          "name": "Get Messages Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/messages/stats/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "messages", "stats", ""]
+            },
+            "description": "Получить общую статистику по сообщениям"
+          },
+          "response": []
+        },
+        {
           "name": "Search Messages",
           "request": {
             "method": "GET",
@@ -535,6 +614,92 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "rating", "streams", "1", "students"]
             }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Stream Students Facts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/rating/streams/1/students-facts?week_start=2025-01-13&week_end=2025-01-19",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "rating", "streams", "1", "students-facts"],
+              "query": [
+                {
+                  "key": "week_start",
+                  "value": "2025-01-13",
+                  "description": "Начало недели"
+                },
+                {
+                  "key": "week_end",
+                  "value": "2025-01-19",
+                  "description": "Конец недели"
+                }
+              ]
+            },
+            "description": "Получить факты недели для всех студентов потока (для n8n). Возвращает данные по заданиям, активности, посещаемости и вовлеченности для каждого активного студента."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Stream Notification Config",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/rating/streams/1/config",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "rating", "streams", "1", "config"]
+            },
+            "description": "Получить конфигурацию уведомлений для потока. Возвращает настройки рассылки, лимит выборки, язык, тон, правила антиповтора и режим сухого прогона."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Stream Notification Config",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stream_id\": 1,\n  \"notification_enabled\": true,\n  \"frequency\": \"weekly\",\n  \"day_of_week\": 1,\n  \"time\": \"10:00\",\n  \"student_limit\": 10,\n  \"language\": \"ru\",\n  \"tone\": \"friendly\",\n  \"anti_repeat_rules\": {\n    \"max_repeats_per_week\": 1,\n    \"min_days_between\": 7\n  },\n  \"dry_run_enabled\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/rating/streams/1/config",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "rating", "streams", "1", "config"]
+            },
+            "description": "Создать конфигурацию уведомлений для потока. Настройки: частота рассылки, лимит выборки, язык, тон, правила антиповтора, режим сухого прогона."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Stream Notification Config",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notification_enabled\": true,\n  \"frequency\": \"weekly\",\n  \"day_of_week\": 1,\n  \"time\": \"10:00\",\n  \"student_limit\": 15,\n  \"language\": \"ru\",\n  \"tone\": \"supportive\",\n  \"dry_run_enabled\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/rating/streams/1/config",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "rating", "streams", "1", "config"]
+            },
+            "description": "Обновить конфигурацию уведомлений для потока. Можно обновить отдельные поля, остальные останутся без изменений."
           },
           "response": []
         },

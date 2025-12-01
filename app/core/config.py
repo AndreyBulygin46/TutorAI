@@ -12,5 +12,8 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "AI Tutor"
     VERSION: str = "1.0.0"
     DEBUG: bool = True
+    
+    # TODO: Раскомментировать для продакшена
+    # N8N_API_KEY: str = os.getenv("N8N_API_KEY", "")
 
 settings = Settings()

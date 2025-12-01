@@ -3,7 +3,8 @@ Pydantic schemas for Rating and n8n Integration API
 """
 from datetime import date, datetime
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
+from app.schemas.student import StudentFacts
 
 
 class RatingConfig(BaseModel):
@@ -18,17 +19,6 @@ class RatingConfig(BaseModel):
                 self.attendance_weight + self.engagement_weight)
         if abs(total - 1.0) > 0.01:
             raise ValueError("Сумма весов должна равняться 1.0")
-
-
-class StudentFacts(BaseModel):
-    """Факты о студенте за период"""
-    student_id: int
-    week_start: date
-    week_end: date
-    assignments: Dict[str, Any] = Field(..., description="Данные по заданиям")
-    activity: Dict[str, Any] = Field(..., description="Данные по активности")
-    attendance: Dict[str, Any] = Field(..., description="Данные по посещаемости")
-    engagement: Dict[str, Any] = Field(..., description="Данные по вовлеченности")
 
 
 class WeeklyRating(BaseModel):
@@ -62,6 +52,48 @@ class RatingCalculationResponse(BaseModel):
     calculated_at: datetime = Field(default_factory=datetime.now)
 
 
+class StreamNotificationConfigBase(BaseModel):
+    """Базовая схема конфигурации уведомлений потока"""
+    notification_enabled: bool = Field(True, description="Включены ли уведомления")
+    frequency: str = Field("weekly", description="Частота рассылки: weekly, daily")
+    day_of_week: Optional[int] = Field(None, ge=0, le=6, description="День недели (0-6, понедельник-воскресенье)")
+    time: Optional[str] = Field(None, description="Время рассылки (HH:MM)")
+    student_limit: Optional[int] = Field(None, ge=1, description="Лимит выборки студентов")
+    language: str = Field("ru", description="Язык сообщений")
+    tone: str = Field("friendly", description="Тон сообщений: friendly, formal, supportive")
+    anti_repeat_rules: Optional[Dict[str, Any]] = Field(None, description="Правила антиповтора (JSON)")
+    dry_run_enabled: bool = Field(False, description="Режим сухого прогона")
+
+
+class StreamNotificationConfigCreate(StreamNotificationConfigBase):
+    """Схема для создания конфигурации"""
+    stream_id: int = Field(..., description="ID потока")
+
+
+class StreamNotificationConfigUpdate(BaseModel):
+    """Схема для обновления конфигурации"""
+    notification_enabled: Optional[bool] = None
+    frequency: Optional[str] = None
+    day_of_week: Optional[int] = Field(None, ge=0, le=6)
+    time: Optional[str] = None
+    student_limit: Optional[int] = Field(None, ge=1)
+    language: Optional[str] = None
+    tone: Optional[str] = None
+    anti_repeat_rules: Optional[Dict[str, Any]] = None
+    dry_run_enabled: Optional[bool] = None
+
+
+class StreamNotificationConfigResponse(StreamNotificationConfigBase):
+    """Схема ответа для конфигурации"""
+    model_config = ConfigDict(from_attributes=True)
+    
+    config_id: int = Field(..., description="ID конфигурации")
+    stream_id: int = Field(..., description="ID потока")
+    time: Optional[str] = Field(None, description="Время рассылки (HH:MM)")
+    created_at: datetime = Field(..., description="Дата создания")
+    updated_at: datetime = Field(..., description="Дата обновления")
+
+
 class StreamConfig(BaseModel):
     """Конфигурация потока для n8n"""
     stream_id: int
@@ -71,7 +103,8 @@ class StreamConfig(BaseModel):
     end_date: date
     is_active: bool = True
     rating_config: Optional[RatingConfig] = None
-    notification_settings: Dict[str, Any] = Field(default_factory=dict)
+    notification_config: Optional[StreamNotificationConfigResponse] = Field(None, description="Конфигурация уведомлений")
+    notification_settings: Dict[str, Any] = Field(default_factory=dict)  # Для обратной совместимости
 
 
 class N8nNotificationRequest(BaseModel):
@@ -112,3 +145,13 @@ class WeeklyReport(BaseModel):
     top_performers: List[Dict[str, Any]]
     needs_attention: List[Dict[str, Any]]
     generated_at: datetime = Field(default_factory=datetime.now)
+
+
+class StreamStudentsFactsResponse(BaseModel):
+    """Факты недели для всех студентов потока"""
+    stream_id: int
+    week_start: date
+    week_end: date
+    students_facts: List[StudentFacts] = Field(..., description="Факты для каждого студента")
+    total_students: int
+    active_students: int

@@ -9,14 +9,26 @@ from datetime import date, datetime, timedelta
 
 from app.core.database import get_db
 from app.services.student_service import StudentService
-from app.models.education import Student, Stream
+from app.models.education import Student, Stream, StreamNotificationConfig
+from app.schemas.student import StudentFacts
 from app.schemas.rating import (
     RatingCalculationRequest, RatingCalculationResponse, WeeklyRating,
     StreamConfig, StreamStudentsResponse, WeeklyReport, N8nNotificationRequest,
-    N8nNotificationResponse
+    N8nNotificationResponse, StreamStudentsFactsResponse,
+    StreamNotificationConfigCreate, StreamNotificationConfigUpdate,
+    StreamNotificationConfigResponse
 )
 
+# TODO: Раскомментировать для продакшена
+# from app.core.auth import verify_api_key
+
+# TODO: Раскомментировать dependencies для продакшена
 router = APIRouter(prefix="/rating", tags=["rating"])
+# router = APIRouter(
+#     prefix="/rating", 
+#     tags=["rating"],
+#     dependencies=[Depends(verify_api_key)]  # Проверка API ключа для всех эндпоинтов
+# )
 
 
 @router.post("/calculate", response_model=RatingCalculationResponse)
@@ -103,13 +115,58 @@ async def get_streams_config(
     db: AsyncSession = Depends(get_db)
 ):
     """Получить конфигурацию потоков для n8n"""
-    # Получаем все активные потоки
+    # Получаем все активные потоки с конфигурацией
     query = select(Stream).where(Stream.end_date >= date.today())
     result = await db.execute(query)
     streams = result.scalars().all()
     
     configs = []
     for stream in streams:
+        # Получаем конфигурацию уведомлений из БД
+        notification_config_query = select(StreamNotificationConfig).where(
+            StreamNotificationConfig.stream_id == stream.stream_id
+        )
+        notification_config_result = await db.execute(notification_config_query)
+        notification_config = notification_config_result.scalar_one_or_none()
+        
+        # Если конфигурации нет, используем значения по умолчанию
+        if notification_config:
+            # Конвертируем time в строку для ответа
+            notification_config_dict = {
+                "config_id": notification_config.config_id,
+                "stream_id": notification_config.stream_id,
+                "notification_enabled": notification_config.notification_enabled,
+                "frequency": notification_config.frequency,
+                "day_of_week": notification_config.day_of_week,
+                "time": notification_config.time.strftime("%H:%M") if notification_config.time else None,
+                "student_limit": notification_config.student_limit,
+                "language": notification_config.language,
+                "tone": notification_config.tone,
+                "anti_repeat_rules": notification_config.anti_repeat_rules,
+                "dry_run_enabled": notification_config.dry_run_enabled,
+                "created_at": notification_config.created_at,
+                "updated_at": notification_config.updated_at,
+            }
+            notification_config_response = StreamNotificationConfigResponse(**notification_config_dict)
+            notification_settings = {
+                "enabled": notification_config.notification_enabled,
+                "schedule": notification_config.frequency,
+                "day_of_week": notification_config.day_of_week,
+                "time": notification_config.time.strftime("%H:%M") if notification_config.time else None,
+                "student_limit": notification_config.student_limit,
+                "language": notification_config.language,
+                "tone": notification_config.tone,
+                "dry_run_enabled": notification_config.dry_run_enabled
+            }
+        else:
+            notification_config_response = None
+            notification_settings = {
+                "enabled": True,
+                "schedule": "weekly",
+                "day_of_week": 1,  # Понедельник
+                "time": "10:00"
+            }
+        
         config = StreamConfig(
             stream_id=stream.stream_id,
             name=stream.name,
@@ -117,12 +174,8 @@ async def get_streams_config(
             start_date=stream.start_date,
             end_date=stream.end_date,
             is_active=stream.end_date >= date.today(),
-            notification_settings={
-                "enabled": True,
-                "schedule": "weekly",
-                "day_of_week": 1,  # Понедельник
-                "time": "10:00"
-            }
+            notification_config=notification_config_response,
+            notification_settings=notification_settings  # Для обратной совместимости
         )
         configs.append(config)
     
@@ -176,6 +229,62 @@ async def get_stream_students(
         students=students_data,
         total_count=len(students_data),
         active_count=active_count
+    )
+
+
+@router.get("/streams/{stream_id}/students-facts", response_model=StreamStudentsFactsResponse)
+async def get_stream_students_facts(
+    stream_id: int,
+    week_start: date = Query(..., description="Начало недели"),
+    week_end: date = Query(..., description="Конец недели"),
+    db: AsyncSession = Depends(get_db)
+):
+    """Получить факты недели для всех студентов потока (для n8n)"""
+    # Получаем поток
+    stream_query = select(Stream).where(Stream.stream_id == stream_id)
+    stream_result = await db.execute(stream_query)
+    stream = stream_result.scalar_one_or_none()
+    
+    if not stream:
+        raise HTTPException(status_code=404, detail="Поток не найден")
+    
+    # Получаем студентов потока
+    students_query = select(Student).join(Student.streams).where(
+        Stream.stream_id == stream_id
+    )
+    students_result = await db.execute(students_query)
+    students = students_result.scalars().all()
+    
+    # Получаем факты для каждого студента
+    service = StudentService(db)
+    students_facts = []
+    active_count = 0
+    
+    for student in students:
+        if not student.is_active:
+            continue
+        
+        active_count += 1
+        
+        try:
+            facts = await service.get_student_facts(
+                student.student_id,
+                week_start,
+                week_end
+            )
+            students_facts.append(facts)
+        except Exception as e:
+            # Логируем ошибку, но продолжаем обработку других студентов
+            # В продакшене можно добавить логирование
+            continue
+    
+    return StreamStudentsFactsResponse(
+        stream_id=stream_id,
+        week_start=week_start,
+        week_end=week_end,
+        students_facts=students_facts,
+        total_students=len(students),
+        active_students=active_count
     )
 
 
@@ -326,6 +435,172 @@ async def send_notifications(
         failed_count=failed_count,
         errors=errors
     )
+
+
+@router.get("/streams/{stream_id}/config", response_model=StreamNotificationConfigResponse)
+async def get_stream_notification_config(
+    stream_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """Получить конфигурацию уведомлений потока"""
+    # Проверяем, что поток существует
+    stream_query = select(Stream).where(Stream.stream_id == stream_id)
+    stream_result = await db.execute(stream_query)
+    stream = stream_result.scalar_one_or_none()
+    
+    if not stream:
+        raise HTTPException(status_code=404, detail="Поток не найден")
+    
+    # Получаем конфигурацию
+    config_query = select(StreamNotificationConfig).where(
+        StreamNotificationConfig.stream_id == stream_id
+    )
+    config_result = await db.execute(config_query)
+    config = config_result.scalar_one_or_none()
+    
+    if not config:
+        raise HTTPException(status_code=404, detail="Конфигурация не найдена")
+    
+    # Конвертируем time в строку для ответа
+    config_dict = {
+        "config_id": config.config_id,
+        "stream_id": config.stream_id,
+        "notification_enabled": config.notification_enabled,
+        "frequency": config.frequency,
+        "day_of_week": config.day_of_week,
+        "time": config.time.strftime("%H:%M") if config.time else None,
+        "student_limit": config.student_limit,
+        "language": config.language,
+        "tone": config.tone,
+        "anti_repeat_rules": config.anti_repeat_rules,
+        "dry_run_enabled": config.dry_run_enabled,
+        "created_at": config.created_at,
+        "updated_at": config.updated_at,
+    }
+    return StreamNotificationConfigResponse(**config_dict)
+
+
+@router.put("/streams/{stream_id}/config", response_model=StreamNotificationConfigResponse)
+async def update_stream_notification_config(
+    stream_id: int,
+    config_data: StreamNotificationConfigUpdate,
+    db: AsyncSession = Depends(get_db)
+):
+    """Обновить конфигурацию уведомлений потока"""
+    # Проверяем, что поток существует
+    stream_query = select(Stream).where(Stream.stream_id == stream_id)
+    stream_result = await db.execute(stream_query)
+    stream = stream_result.scalar_one_or_none()
+    
+    if not stream:
+        raise HTTPException(status_code=404, detail="Поток не найден")
+    
+    # Получаем существующую конфигурацию или создаем новую
+    config_query = select(StreamNotificationConfig).where(
+        StreamNotificationConfig.stream_id == stream_id
+    )
+    config_result = await db.execute(config_query)
+    config = config_result.scalar_one_or_none()
+    
+    if not config:
+        # Создаем новую конфигурацию с дефолтными значениями
+        config = StreamNotificationConfig(
+            stream_id=stream_id,
+            **config_data.model_dump(exclude_unset=True)
+        )
+        db.add(config)
+    else:
+        # Обновляем существующую конфигурацию
+        update_data = config_data.model_dump(exclude_unset=True)
+        
+        # Обработка времени (конвертация строки в time объект)
+        if "time" in update_data and update_data["time"]:
+            from datetime import datetime as dt
+            time_obj = dt.strptime(update_data["time"], "%H:%M").time()
+            update_data["time"] = time_obj
+        
+        for field, value in update_data.items():
+            setattr(config, field, value)
+        
+        config.updated_at = datetime.now()
+    
+    await db.commit()
+    await db.refresh(config)
+    
+    # Конвертируем time в строку для ответа
+    config_dict = {
+        "config_id": config.config_id,
+        "stream_id": config.stream_id,
+        "notification_enabled": config.notification_enabled,
+        "frequency": config.frequency,
+        "day_of_week": config.day_of_week,
+        "time": config.time.strftime("%H:%M") if config.time else None,
+        "student_limit": config.student_limit,
+        "language": config.language,
+        "tone": config.tone,
+        "anti_repeat_rules": config.anti_repeat_rules,
+        "dry_run_enabled": config.dry_run_enabled,
+        "created_at": config.created_at,
+        "updated_at": config.updated_at,
+    }
+    return StreamNotificationConfigResponse(**config_dict)
+
+
+@router.post("/streams/{stream_id}/config", response_model=StreamNotificationConfigResponse)
+async def create_stream_notification_config(
+    stream_id: int,
+    config_data: StreamNotificationConfigCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    """Создать конфигурацию уведомлений потока"""
+    # Проверяем, что поток существует
+    stream_query = select(Stream).where(Stream.stream_id == stream_id)
+    stream_result = await db.execute(stream_query)
+    stream = stream_result.scalar_one_or_none()
+    
+    if not stream:
+        raise HTTPException(status_code=404, detail="Поток не найден")
+    
+    # Проверяем, что конфигурация еще не существует
+    existing_config_query = select(StreamNotificationConfig).where(
+        StreamNotificationConfig.stream_id == stream_id
+    )
+    existing_config_result = await db.execute(existing_config_query)
+    existing_config = existing_config_result.scalar_one_or_none()
+    
+    if existing_config:
+        raise HTTPException(status_code=400, detail="Конфигурация уже существует. Используйте PUT для обновления")
+    
+    # Обработка времени (конвертация строки в time объект)
+    config_dict = config_data.model_dump()
+    if config_dict.get("time"):
+        from datetime import datetime as dt
+        time_obj = dt.strptime(config_dict["time"], "%H:%M").time()
+        config_dict["time"] = time_obj
+    
+    # Создаем конфигурацию
+    config = StreamNotificationConfig(**config_dict)
+    db.add(config)
+    await db.commit()
+    await db.refresh(config)
+    
+    # Конвертируем time в строку для ответа
+    config_dict = {
+        "config_id": config.config_id,
+        "stream_id": config.stream_id,
+        "notification_enabled": config.notification_enabled,
+        "frequency": config.frequency,
+        "day_of_week": config.day_of_week,
+        "time": config.time.strftime("%H:%M") if config.time else None,
+        "student_limit": config.student_limit,
+        "language": config.language,
+        "tone": config.tone,
+        "anti_repeat_rules": config.anti_repeat_rules,
+        "dry_run_enabled": config.dry_run_enabled,
+        "created_at": config.created_at,
+        "updated_at": config.updated_at,
+    }
+    return StreamNotificationConfigResponse(**config_dict)
 
 
 @router.get("/health")
